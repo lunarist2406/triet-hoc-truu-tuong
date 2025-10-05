@@ -10,6 +10,7 @@ import { TestimonialsSection } from "@/components/testimonials-section";
 import { ContactForm } from "@/components/contact-form";
 import { Footer } from "@/components/footer";
 import { PageTransition } from "@/components/ui/page-transition";
+import { AIPhilosophyChat } from "@/components/ai-philosophy-chat";
 
 export default function Home() {
   const [activeViewpoint, setActiveViewpoint] = useState(1);
@@ -119,6 +120,9 @@ export default function Home() {
       </PageTransition>
 
       <Footer />
+
+      {/* AI Chat Widget */}
+      <AIPhilosophyChat />
     </div>
   );
 }
