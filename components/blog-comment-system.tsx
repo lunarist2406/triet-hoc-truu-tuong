@@ -59,10 +59,13 @@ function BlogCommentItem({
     const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
 
     if (diffInSeconds < 60) return "Vừa xong";
-    if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)} phút trước`;
-    if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
-    if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
-    
+    if (diffInSeconds < 3600)
+      return `${Math.floor(diffInSeconds / 60)} phút trước`;
+    if (diffInSeconds < 86400)
+      return `${Math.floor(diffInSeconds / 3600)} giờ trước`;
+    if (diffInSeconds < 2592000)
+      return `${Math.floor(diffInSeconds / 86400)} ngày trước`;
+
     return date.toLocaleDateString("vi-VN", {
       year: "numeric",
       month: "short",
@@ -89,7 +92,9 @@ function BlogCommentItem({
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-gray-800 text-sm">{comment.author}</span>
+              <span className="font-semibold text-gray-800 text-sm">
+                {comment.author}
+              </span>
               <div className="flex items-center gap-1 text-gray-500 text-xs">
                 <Clock className="w-2 h-2" />
                 {formatTime(comment.timestamp)}
@@ -201,7 +206,7 @@ function BlogCommentItem({
         message="Bạn có chắc chắn muốn xóa bình luận này? Hành động này không thể hoàn tác."
         confirmText="Xóa"
         cancelText="Hủy"
-        variant="destructive"
+        type="danger"
       />
     </motion.div>
   );
@@ -212,7 +217,10 @@ interface BlogCommentSystemProps {
   blogTitle: string;
 }
 
-export function BlogCommentSystem({ blogId, blogTitle }: BlogCommentSystemProps) {
+export function BlogCommentSystem({
+  blogId,
+  blogTitle,
+}: BlogCommentSystemProps) {
   const [comments, setComments] = useState<BlogComment[]>([]);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -282,7 +290,11 @@ export function BlogCommentSystem({ blogId, blogTitle }: BlogCommentSystemProps)
     }
   };
 
-  const handleReply = async (parentId: string, replyAuthor: string, replyContent: string) => {
+  const handleReply = async (
+    parentId: string,
+    replyAuthor: string,
+    replyContent: string
+  ) => {
     try {
       const response = await fetch("/api/blog-comments", {
         method: "POST",
@@ -353,7 +365,10 @@ export function BlogCommentSystem({ blogId, blogTitle }: BlogCommentSystemProps)
     return (
       <div className="space-y-4">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse">
+          <div
+            key={i}
+            className="bg-white rounded-lg p-4 shadow-sm border border-gray-100 animate-pulse"
+          >
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
               <div className="flex-1">
@@ -381,9 +396,7 @@ export function BlogCommentSystem({ blogId, blogTitle }: BlogCommentSystemProps)
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-800">Bình luận</h3>
-            <p className="text-gray-600 text-xs">
-              {totalComments} bình luận
-            </p>
+            <p className="text-gray-600 text-xs">{totalComments} bình luận</p>
           </div>
         </div>
       </div>

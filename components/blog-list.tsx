@@ -454,27 +454,27 @@ export function BlogList({
                     </div>
                   </div>
                 </div>
-                 <Button
-                   variant="ghost"
-                   size="sm"
-                   onClick={() => setSelectedBlog(null)}
-                   className="text-gray-500 hover:text-gray-700 hover:bg-white/50 rounded-full p-2"
-                 >
-                   <X className="w-5 h-5" />
-                 </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setSelectedBlog(null)}
+                  className="text-gray-500 hover:text-gray-700 hover:bg-white/50 rounded-full p-2"
+                >
+                  <X className="w-5 h-5" />
+                </Button>
               </div>
 
-               {/* Blog Info */}
-               <div className="flex items-center gap-4 mt-4">
-                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                   <MessageCircle className="w-4 h-4" />
-                   <span>Bình luận</span>
-                 </div>
-                 <div className="flex items-center gap-2 text-sm text-gray-600">
-                   <Heart className="w-4 h-4" />
-                   <span>{selectedBlog.likes} lượt thích</span>
-                 </div>
-               </div>
+              {/* Blog Info */}
+              <div className="flex items-center gap-4 mt-4">
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <MessageCircle className="w-4 h-4" />
+                  <span>Bình luận</span>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-gray-600">
+                  <Heart className="w-4 h-4" />
+                  <span>{selectedBlog.likes} lượt thích</span>
+                </div>
+              </div>
             </div>
 
             {/* Split Content */}
@@ -556,7 +556,7 @@ export function BlogList({
         message="Bạn có chắc chắn muốn xóa bài viết này? Hành động này không thể hoàn tác."
         confirmText="Xóa"
         cancelText="Hủy"
-        variant="destructive"
+        type="danger"
       />
     </div>
   );
