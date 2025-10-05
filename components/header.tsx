@@ -14,10 +14,10 @@ import {
   Home,
   BookOpen,
   Users,
-  Globe,
   HelpCircle,
+  PenTool, // New import for Blog
 } from "lucide-react";
-import { FiCheck, FiGlobe, FiUser } from "react-icons/fi";
+import { FiCheck } from "react-icons/fi";
 import { motion } from "framer-motion";
 import logo from "../public/95d7e5b4a4722bf2f9e4c961ba74fd3f960fe8cb.png";
 import Image from "next/image";
@@ -82,6 +82,17 @@ export function Header({ activeViewpoint, onViewpointChange }: HeaderProps) {
             >
               <HelpCircle className="w-4 h-4" />
               TRẮC NGHIỆM
+            </Link>
+          </motion.div>
+
+          {/* Blog */}
+          <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
+            <Link
+              href="/blog"
+              className="flex items-center gap-2 text-sm font-semibold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent hover:from-orange-300 hover:to-yellow-300 transition-all duration-300 px-3 py-2 rounded-lg hover:bg-orange-500/10"
+            >
+              <PenTool className="w-4 h-4" />
+              BLOG
             </Link>
           </motion.div>
 
@@ -159,45 +170,6 @@ export function Header({ activeViewpoint, onViewpointChange }: HeaderProps) {
                     <FiCheck className="w-3 h-3 text-white" />
                   </div>
                 )}
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-          {/* Dropdown Ngôn ngữ */}
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <Button
-                  variant="ghost"
-                  className="flex items-center gap-2 text-sm font-semibold bg-gradient-to-r from-orange-400 to-yellow-400 bg-clip-text text-transparent hover:from-orange-300 hover:to-yellow-300 transition-all duration-300 px-3 py-2 rounded-lg hover:bg-orange-500/10"
-                >
-                  <Globe className="w-4 h-4" />
-                  NGÔN NGỮ
-                  <ChevronDown className="h-4 w-4" />
-                </Button>
-              </motion.div>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent
-              align="end"
-              className="bg-gradient-to-br from-slate-800/95 to-slate-900/95 border-orange-500/20 backdrop-blur-xl shadow-2xl"
-            >
-              <DropdownMenuItem className="flex items-center gap-3 cursor-pointer hover:bg-gradient-to-r hover:from-orange-500/10 hover:to-yellow-500/10 text-orange-300 hover:text-orange-200 transition-all duration-300 p-3">
-                <div className="p-1 rounded-full bg-gradient-to-r from-orange-400/20 to-yellow-400/20">
-                  <FiGlobe className="w-4 h-4" />
-                </div>
-                <span>Tiếng Việt</span>
-                <div className="p-1 rounded-full bg-gradient-to-r from-orange-400 to-yellow-400">
-                  <FiCheck className="w-3 h-3 text-white" />
-                </div>
-              </DropdownMenuItem>
-              <DropdownMenuItem className="flex items-center gap-3 cursor-pointer hover:bg-gradient-to-r hover:from-orange-500/10 hover:to-yellow-500/10 text-orange-300 hover:text-orange-200 transition-all duration-300 p-3">
-                <div className="p-1 rounded-full bg-gradient-to-r from-orange-400/20 to-yellow-400/20">
-                  <FiGlobe className="w-4 h-4" />
-                </div>
-                <span>English</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

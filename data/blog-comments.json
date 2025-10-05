@@ -1,0 +1,21 @@
+[
+  {
+    "id": "98e01c00-b0dc-4e26-a1e1-fff2c7203d00",
+    "blogId": "mln-1759668016678-0",
+    "author": "Thăsng",
+    "content": "Hay quá đi",
+    "timestamp": "2025-10-05T13:06:07.938Z",
+    "parentId": null,
+    "replies": [
+      {
+        "id": "40c2ed7a-5ef3-474a-9fcb-16fd7a805498",
+        "blogId": "mln-1759668016678-0",
+        "author": "Huy",
+        "content": "Dị ó hỏ",
+        "timestamp": "2025-10-05T13:06:17.202Z",
+        "parentId": "98e01c00-b0dc-4e26-a1e1-fff2c7203d00",
+        "replies": []
+      }
+    ]
+  }
+]
