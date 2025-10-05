@@ -1,16 +1,37 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Header } from "@/components/header"
-import { HeroSection } from "@/components/hero-section"
-import { ViewpointSection } from "@/components/viewpoint-section"
-import { CommentSystem } from "@/components/comment-system"
-import { TestimonialsSection } from "@/components/testimonials-section"
-import { ContactForm } from "@/components/contact-form"
-import { Footer } from "@/components/footer"
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
+import { Header } from "@/components/header";
+import { HeroSection } from "@/components/hero-section";
+import { ViewpointSection } from "@/components/viewpoint-section";
+import { CommentSystem } from "@/components/comment-system";
+import { TestimonialsSection } from "@/components/testimonials-section";
+import { ContactForm } from "@/components/contact-form";
+import { Footer } from "@/components/footer";
+import { PageTransition } from "@/components/ui/page-transition";
 
 export default function Home() {
-  const [activeViewpoint, setActiveViewpoint] = useState(1)
+  const [activeViewpoint, setActiveViewpoint] = useState(1);
+
+  // Listen for viewpoint change events from footer
+  useEffect(() => {
+    const handleViewpointChange = (event: CustomEvent) => {
+      setActiveViewpoint(event.detail);
+    };
+
+    window.addEventListener(
+      "changeViewpoint",
+      handleViewpointChange as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "changeViewpoint",
+        handleViewpointChange as EventListener
+      );
+    };
+  }, []);
 
   const viewpoint1Data = {
     number: 1,
@@ -40,7 +61,12 @@ export default function Home() {
     ],
     imageUrl: "/classical-philosophers-discussing-freedom.jpg",
     imageAlt: "Triết gia cổ điển thảo luận về tự do",
-  }
+    images: [
+      "/classical-philosophers-discussing-freedom.jpg",
+      "/classical-philosophers-plato-and-aristotle-paintin.jpg",
+      "/ancient-open-book-on-dark-background.jpg",
+    ],
+  };
 
   const viewpoint2Data = {
     number: 2,
@@ -67,26 +93,32 @@ export default function Home() {
     ],
     imageUrl: "/industrial-workers-and-alienation-concept.jpg",
     imageAlt: "Khái niệm tha hóa trong lao động",
-  }
+    images: ["/industrial-workers-and-alienation-concept.jpg"],
+  };
 
   return (
     <div className="min-h-screen bg-background">
-      <Header activeViewpoint={activeViewpoint} onViewpointChange={setActiveViewpoint} />
+      <Header
+        activeViewpoint={activeViewpoint}
+        onViewpointChange={setActiveViewpoint}
+      />
       <HeroSection />
 
-      {activeViewpoint === 1 ? (
-        <>
-          <ViewpointSection {...viewpoint1Data} />
-          <CommentSystem viewpointId={1} />
-        </>
-      ) : (
-        <>
-          <ViewpointSection {...viewpoint2Data} />
-          <CommentSystem viewpointId={2} />
-        </>
-      )}
+      <PageTransition>
+        {activeViewpoint === 1 ? (
+          <>
+            <ViewpointSection {...viewpoint1Data} />
+            <CommentSystem viewpointId={1} />
+          </>
+        ) : (
+          <>
+            <ViewpointSection {...viewpoint2Data} />
+            <CommentSystem viewpointId={2} />
+          </>
+        )}
+      </PageTransition>
 
       <Footer />
     </div>
-  )
+  );
 }

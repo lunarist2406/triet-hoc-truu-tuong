@@ -3,12 +3,16 @@
 import type React from "react";
 
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { MessageCircle, Reply, Trash2 } from "lucide-react";
 import toast from "react-hot-toast";
 import { ConfirmDialog } from "@/components/ui/confirm-dialog";
+import { AnimatedButton } from "@/components/ui/animated-button";
+import { AnimatedCard } from "@/components/ui/animated-card";
+import { CommentSkeleton } from "@/components/ui/skeleton";
 
 interface Comment {
   id: string;
@@ -49,8 +53,13 @@ function CommentItem({
   };
 
   return (
-    <div className={`${depth > 0 ? "ml-8 mt-4" : "mt-6"}`}>
-      <div className="bg-secondary/50 rounded-lg p-4 border border-border">
+    <motion.div
+      className={`${depth > 0 ? "ml-8 mt-4" : "mt-6"}`}
+      initial={{ opacity: 0, x: -20 }}
+      animate={{ opacity: 1, x: 0 }}
+      transition={{ duration: 0.3 }}
+    >
+      <AnimatedCard className="bg-secondary/50 rounded-lg p-4 border border-border">
         <div className="flex items-start justify-between mb-2">
           <div>
             <span className="font-semibold text-foreground">
@@ -66,7 +75,7 @@ function CommentItem({
           {comment.content}
         </p>
         <div className="flex gap-2">
-          <Button
+          <AnimatedButton
             variant="ghost"
             size="sm"
             onClick={() => setShowReplyForm(!showReplyForm)}
@@ -74,8 +83,8 @@ function CommentItem({
           >
             <Reply className="h-4 w-4 mr-1" />
             Trả lời
-          </Button>
-          <Button
+          </AnimatedButton>
+          <AnimatedButton
             variant="ghost"
             size="sm"
             onClick={() => setShowDeleteConfirm(true)}
@@ -83,59 +92,81 @@ function CommentItem({
           >
             <Trash2 className="h-4 w-4 mr-1" />
             Xóa
-          </Button>
+          </AnimatedButton>
         </div>
 
-        {showReplyForm && (
-          <form onSubmit={handleSubmitReply} className="mt-4 space-y-3">
-            <Input
-              placeholder="Tên của bạn"
-              value={replyAuthor}
-              onChange={(e) => setReplyAuthor(e.target.value)}
-              className="bg-background"
-              required
-            />
-            <Textarea
-              placeholder="Viết câu trả lời..."
-              value={replyContent}
-              onChange={(e) => setReplyContent(e.target.value)}
-              className="bg-background min-h-[80px]"
-              required
-            />
-            <div className="flex gap-2">
-              <Button
-                type="submit"
-                size="sm"
-                className="bg-primary hover:bg-primary/90"
+        <AnimatePresence>
+          {showReplyForm && (
+            <motion.form
+              onSubmit={handleSubmitReply}
+              className="mt-4 space-y-3"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: "auto" }}
+              exit={{ opacity: 0, height: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <Input
+                placeholder="Tên của bạn"
+                value={replyAuthor}
+                onChange={(e) => setReplyAuthor(e.target.value)}
+                className="bg-background"
+                required
+              />
+              <Textarea
+                placeholder="Viết câu trả lời..."
+                value={replyContent}
+                onChange={(e) => setReplyContent(e.target.value)}
+                className="bg-background min-h-[80px]"
+                required
+              />
+              <div className="flex gap-2">
+                <AnimatedButton
+                  type="submit"
+                  size="sm"
+                  className="bg-primary hover:bg-primary/90"
+                >
+                  Gửi trả lời
+                </AnimatedButton>
+                <AnimatedButton
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setShowReplyForm(false)}
+                >
+                  Hủy
+                </AnimatedButton>
+              </div>
+            </motion.form>
+          )}
+        </AnimatePresence>
+      </AnimatedCard>
+
+      <AnimatePresence>
+        {comment.replies.length > 0 && (
+          <motion.div
+            className="space-y-2"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {comment.replies.map((reply, index) => (
+              <motion.div
+                key={reply.id}
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.1 }}
               >
-                Gửi trả lời
-              </Button>
-              <Button
-                type="button"
-                size="sm"
-                variant="outline"
-                onClick={() => setShowReplyForm(false)}
-              >
-                Hủy
-              </Button>
-            </div>
-          </form>
+                <CommentItem
+                  comment={reply}
+                  onReply={onReply}
+                  onDelete={onDelete}
+                  depth={depth + 1}
+                />
+              </motion.div>
+            ))}
+          </motion.div>
         )}
-      </div>
-
-      {comment.replies.length > 0 && (
-        <div className="space-y-2">
-          {comment.replies.map((reply) => (
-            <CommentItem
-              key={reply.id}
-              comment={reply}
-              onReply={onReply}
-              onDelete={onDelete}
-              depth={depth + 1}
-            />
-          ))}
-        </div>
-      )}
+      </AnimatePresence>
 
       {/* Delete Confirmation Dialog */}
       <ConfirmDialog
@@ -148,7 +179,7 @@ function CommentItem({
         confirmText="Xóa"
         cancelText="Hủy"
       />
-    </div>
+    </motion.div>
   );
 }
 
@@ -287,7 +318,7 @@ export function CommentSystem({ viewpointId }: { viewpointId: number }) {
   };
 
   return (
-    <section className="py-12 bg-background">
+    <section id="comments" className="py-12 bg-background">
       <div className="container mx-auto px-4 max-w-4xl">
         <div className="flex items-center gap-2 mb-6">
           <MessageCircle className="h-6 w-6 text-primary" />
@@ -316,30 +347,50 @@ export function CommentSystem({ viewpointId }: { viewpointId: number }) {
             className="bg-background min-h-[120px]"
             required
           />
-          <Button
+          <AnimatedButton
             type="submit"
             className="bg-primary hover:bg-primary/90"
             disabled={loading}
           >
             {loading ? "Đang gửi..." : "Gửi bình luận"}
-          </Button>
+          </AnimatedButton>
         </form>
 
         {/* Comments List */}
         <div className="space-y-4">
-          {comments.length === 0 ? (
-            <p className="text-center text-muted-foreground py-8">
+          {loading && comments.length === 0 ? (
+            <div className="space-y-4">
+              {[...Array(3)].map((_, i) => (
+                <CommentSkeleton key={i} />
+              ))}
+            </div>
+          ) : comments.length === 0 ? (
+            <motion.p
+              className="text-center text-muted-foreground py-8"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.5 }}
+            >
               Chưa có bình luận nào. Hãy là người đầu tiên bình luận!
-            </p>
+            </motion.p>
           ) : (
-            comments.map((comment) => (
-              <CommentItem
-                key={comment.id}
-                comment={comment}
-                onReply={addReply}
-                onDelete={deleteComment}
-              />
-            ))
+            <AnimatePresence>
+              {comments.map((comment, index) => (
+                <motion.div
+                  key={comment.id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  transition={{ delay: index * 0.1 }}
+                >
+                  <CommentItem
+                    comment={comment}
+                    onReply={addReply}
+                    onDelete={deleteComment}
+                  />
+                </motion.div>
+              ))}
+            </AnimatePresence>
           )}
         </div>
       </div>
