@@ -7,17 +7,6 @@
     "parentId": null,
     "timestamp": "2025-10-05T09:39:27.460Z",
     "ip": "::1",
-    "replies": [
-      {
-        "id": "1759666826075",
-        "author": "213",
-        "content": "124545",
-        "viewpointId": 1,
-        "parentId": "1759657167460",
-        "timestamp": "2025-10-05T12:20:26.075Z",
-        "ip": "::1",
-        "replies": []
-      }
-    ]
+    "replies": []
   }
 ]
