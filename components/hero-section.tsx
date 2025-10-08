@@ -54,7 +54,7 @@ export function HeroSection() {
             transition={{ duration: 1, delay: 0.2 }}
           >
             <Typewriter
-              text="Quan Điểm Về Triết Học Trừu Tượng"
+              text="Chia Sẻ Kiến Thức Triết học"
               speed={80}
               delay={500}
             />
