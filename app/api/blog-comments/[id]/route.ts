@@ -1,22 +1,43 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 
-const BLOG_COMMENTS_FILE = path.join(process.cwd(), "data", "blog-comments.json");
+const BLOG_COMMENTS_FILE = path.join(
+  process.cwd(),
+  "data",
+  "blog-comments.json"
+);
+
+// Đảm bảo thư mục data tồn tại
+async function ensureDataDirectory() {
+  const dataDir = path.join(process.cwd(), "data");
+  try {
+    await fs.access(dataDir);
+  } catch {
+    await fs.mkdir(dataDir, { recursive: true });
+  }
+}
 
 // Helper function to read blog comments
-function readBlogComments() {
-  if (!fs.existsSync(BLOG_COMMENTS_FILE)) {
-    fs.writeFileSync(BLOG_COMMENTS_FILE, "[]", "utf8");
+async function readBlogComments() {
+  try {
+    await ensureDataDirectory();
+    const data = await fs.readFile(BLOG_COMMENTS_FILE, "utf8");
+    return JSON.parse(data);
+  } catch (error) {
+    // Nếu file không tồn tại, trả về mảng rỗng
     return [];
   }
-  const data = fs.readFileSync(BLOG_COMMENTS_FILE, "utf8");
-  return JSON.parse(data);
 }
 
 // Helper function to write blog comments
-function writeBlogComments(comments: any[]) {
-  fs.writeFileSync(BLOG_COMMENTS_FILE, JSON.stringify(comments, null, 2), "utf8");
+async function writeBlogComments(comments: any[]) {
+  await ensureDataDirectory();
+  await fs.writeFile(
+    BLOG_COMMENTS_FILE,
+    JSON.stringify(comments, null, 2),
+    "utf8"
+  );
 }
 
 // Helper function to recursively remove comment and its replies
@@ -26,7 +47,10 @@ function removeCommentRecursively(comments: any[], commentId: string): any[] {
       return false; // Remove this comment
     }
     // Recursively remove from replies
-    comment.replies = removeCommentRecursively(comment.replies || [], commentId);
+    comment.replies = removeCommentRecursively(
+      comment.replies || [],
+      commentId
+    );
     return true;
   });
 }
@@ -46,7 +70,7 @@ export async function DELETE(
       );
     }
 
-    const comments = readBlogComments();
+    const comments = await readBlogComments();
     const updatedComments = removeCommentRecursively(comments, commentId);
 
     // Check if comment was actually removed
@@ -57,7 +81,7 @@ export async function DELETE(
       );
     }
 
-    writeBlogComments(updatedComments);
+    await writeBlogComments(updatedComments);
 
     return NextResponse.json(
       { message: "Đã xóa bình luận thành công" },

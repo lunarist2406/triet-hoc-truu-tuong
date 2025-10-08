@@ -1,23 +1,44 @@
 import { NextRequest, NextResponse } from "next/server";
-import fs from "fs";
+import { promises as fs } from "fs";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 
-const BLOG_COMMENTS_FILE = path.join(process.cwd(), "data", "blog-comments.json");
+const BLOG_COMMENTS_FILE = path.join(
+  process.cwd(),
+  "data",
+  "blog-comments.json"
+);
+
+// Đảm bảo thư mục data tồn tại
+async function ensureDataDirectory() {
+  const dataDir = path.join(process.cwd(), "data");
+  try {
+    await fs.access(dataDir);
+  } catch {
+    await fs.mkdir(dataDir, { recursive: true });
+  }
+}
 
 // Helper function to read blog comments
-function readBlogComments() {
-  if (!fs.existsSync(BLOG_COMMENTS_FILE)) {
-    fs.writeFileSync(BLOG_COMMENTS_FILE, "[]", "utf8");
+async function readBlogComments() {
+  try {
+    await ensureDataDirectory();
+    const data = await fs.readFile(BLOG_COMMENTS_FILE, "utf8");
+    return JSON.parse(data);
+  } catch (error) {
+    // Nếu file không tồn tại, trả về mảng rỗng
     return [];
   }
-  const data = fs.readFileSync(BLOG_COMMENTS_FILE, "utf8");
-  return JSON.parse(data);
 }
 
 // Helper function to write blog comments
-function writeBlogComments(comments: any[]) {
-  fs.writeFileSync(BLOG_COMMENTS_FILE, JSON.stringify(comments, null, 2), "utf8");
+async function writeBlogComments(comments: any[]) {
+  await ensureDataDirectory();
+  await fs.writeFile(
+    BLOG_COMMENTS_FILE,
+    JSON.stringify(comments, null, 2),
+    "utf8"
+  );
 }
 
 // GET - Get comments for a specific blog
@@ -33,11 +54,16 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const allComments = readBlogComments();
-    const blogComments = allComments.filter((comment: any) => comment.blogId === blogId);
+    const allComments = await readBlogComments();
+    const blogComments = allComments.filter(
+      (comment: any) => comment.blogId === blogId
+    );
 
     // Sort by timestamp (newest first)
-    blogComments.sort((a: any, b: any) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+    blogComments.sort(
+      (a: any, b: any) =>
+        new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime()
+    );
 
     return NextResponse.json(blogComments);
   } catch (error) {
@@ -61,7 +87,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const comments = readBlogComments();
+    const comments = await readBlogComments();
     const newComment = {
       id: uuidv4(),
       blogId,
@@ -88,7 +114,7 @@ export async function POST(request: NextRequest) {
       comments.push(newComment);
     }
 
-    writeBlogComments(comments);
+    await writeBlogComments(comments);
 
     return NextResponse.json(newComment, { status: 201 });
   } catch (error) {
