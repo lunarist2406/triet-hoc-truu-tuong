@@ -9,6 +9,10 @@ const BLOG_COMMENTS_FILE = path.join(
   "blog-comments.json"
 );
 
+// In-memory storage cho Vercel deployment
+let blogCommentsCache: any[] = [];
+let blogCommentsCacheInitialized = false;
+
 // Đảm bảo thư mục data tồn tại
 async function ensureDataDirectory() {
   const dataDir = path.join(process.cwd(), "data");
@@ -19,26 +23,46 @@ async function ensureDataDirectory() {
   }
 }
 
-// Helper function to read blog comments
+// Helper function to read blog comments từ file hoặc cache
 async function readBlogComments() {
+  // Nếu đã có cache, trả về cache
+  if (blogCommentsCacheInitialized) {
+    return blogCommentsCache;
+  }
+
   try {
     await ensureDataDirectory();
     const data = await fs.readFile(BLOG_COMMENTS_FILE, "utf8");
-    return JSON.parse(data);
+    const comments = JSON.parse(data);
+    blogCommentsCache = comments;
+    blogCommentsCacheInitialized = true;
+    return comments;
   } catch (error) {
     // Nếu file không tồn tại, trả về mảng rỗng
+    blogCommentsCache = [];
+    blogCommentsCacheInitialized = true;
     return [];
   }
 }
 
-// Helper function to write blog comments
+// Helper function to write blog comments vào file và cache
 async function writeBlogComments(comments: any[]) {
-  await ensureDataDirectory();
-  await fs.writeFile(
-    BLOG_COMMENTS_FILE,
-    JSON.stringify(comments, null, 2),
-    "utf8"
-  );
+  // Cập nhật cache
+  blogCommentsCache = comments;
+  blogCommentsCacheInitialized = true;
+  
+  // Thử ghi vào file (sẽ fail trên Vercel nhưng không sao)
+  try {
+    await ensureDataDirectory();
+    await fs.writeFile(
+      BLOG_COMMENTS_FILE,
+      JSON.stringify(comments, null, 2),
+      "utf8"
+    );
+  } catch (error) {
+    // Trên Vercel, file system chỉ đọc, bỏ qua lỗi này
+    console.log("Blog comments file write failed (expected on Vercel):", error);
+  }
 }
 
 // GET - Get comments for a specific blog

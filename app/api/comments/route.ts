@@ -5,6 +5,11 @@ import path from "path";
 const dataFilePath = path.join(process.cwd(), "data", "comments.json");
 const rateLimitFilePath = path.join(process.cwd(), "data", "rate-limit.json");
 
+// In-memory storage cho Vercel deployment
+let commentsCache: any[] = [];
+let rateLimitCache: any = {};
+let cacheInitialized = false;
+
 // Cấu hình rate limiting
 const RATE_LIMIT_CONFIG = {
   maxCommentsPerIP: 10, // Tối đa 10 bình luận per IP
@@ -22,22 +27,42 @@ async function ensureDataDirectory() {
   }
 }
 
-// Đọc bình luận từ file
+// Đọc bình luận từ file hoặc cache
 async function readComments() {
+  // Nếu đã có cache, trả về cache
+  if (cacheInitialized) {
+    return commentsCache;
+  }
+
   try {
     await ensureDataDirectory();
     const data = await fs.readFile(dataFilePath, "utf8");
-    return JSON.parse(data);
+    const comments = JSON.parse(data);
+    commentsCache = comments;
+    cacheInitialized = true;
+    return comments;
   } catch (error) {
     // Nếu file không tồn tại, trả về mảng rỗng
+    commentsCache = [];
+    cacheInitialized = true;
     return [];
   }
 }
 
-// Ghi bình luận vào file
+// Ghi bình luận vào file và cache
 async function writeComments(comments: any[]) {
-  await ensureDataDirectory();
-  await fs.writeFile(dataFilePath, JSON.stringify(comments, null, 2));
+  // Cập nhật cache
+  commentsCache = comments;
+  cacheInitialized = true;
+  
+  // Thử ghi vào file (sẽ fail trên Vercel nhưng không sao)
+  try {
+    await ensureDataDirectory();
+    await fs.writeFile(dataFilePath, JSON.stringify(comments, null, 2));
+  } catch (error) {
+    // Trên Vercel, file system chỉ đọc, bỏ qua lỗi này
+    console.log("File write failed (expected on Vercel):", error);
+  }
 }
 
 // Lấy IP address từ request
@@ -59,21 +84,38 @@ function getClientIP(request: NextRequest): string {
   return "unknown";
 }
 
-// Đọc rate limit data
+// Đọc rate limit data từ file hoặc cache
 async function readRateLimit() {
+  // Nếu đã có cache, trả về cache
+  if (cacheInitialized && Object.keys(rateLimitCache).length > 0) {
+    return rateLimitCache;
+  }
+
   try {
     await ensureDataDirectory();
     const data = await fs.readFile(rateLimitFilePath, "utf8");
-    return JSON.parse(data);
+    const rateLimit = JSON.parse(data);
+    rateLimitCache = rateLimit;
+    return rateLimit;
   } catch (error) {
+    rateLimitCache = {};
     return {};
   }
 }
 
-// Ghi rate limit data
+// Ghi rate limit data vào file và cache
 async function writeRateLimit(data: any) {
-  await ensureDataDirectory();
-  await fs.writeFile(rateLimitFilePath, JSON.stringify(data, null, 2));
+  // Cập nhật cache
+  rateLimitCache = data;
+  
+  // Thử ghi vào file (sẽ fail trên Vercel nhưng không sao)
+  try {
+    await ensureDataDirectory();
+    await fs.writeFile(rateLimitFilePath, JSON.stringify(data, null, 2));
+  } catch (error) {
+    // Trên Vercel, file system chỉ đọc, bỏ qua lỗi này
+    console.log("Rate limit file write failed (expected on Vercel):", error);
+  }
 }
 
 // Kiểm tra rate limit
